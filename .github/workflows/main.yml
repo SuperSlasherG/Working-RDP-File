@@ -23,12 +23,8 @@ jobs:
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
         Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
     - name: Create and keep ngrok tunnel running
-      id: create_ngrok_tunnel
       run: |
-        ngrok_output=$(.\ngrok\ngrok.exe tcp 3389)
-        echo "::set-output name=ngrok_endpoint::$(echo $ngrok_output | grep -o 'tcp://.*')"
-      shell: bash
-    - name: Connect to Remote Desktop
-      run: |
-        echo "Remote Desktop endpoint: ${{ steps.create_ngrok_tunnel.outputs.ngrok_endpoint }}"
-      shell: bash
+        while ($true) {
+          .\ngrok\ngrok.exe tcp 3389
+          Start-Sleep -Seconds 10
+        }
