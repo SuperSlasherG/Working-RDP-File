@@ -22,6 +22,8 @@ jobs:
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
         Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-    - name: Create and keep ngrok tunnel running
+    - name: Create ngrok tunnel
       run: |
         Start-Process -FilePath .\ngrok\ngrok.exe -ArgumentList "tcp", "3389"
+        Start-Sleep -Seconds 10
+        .\ngrok\ngrok.exe tcp 3389
