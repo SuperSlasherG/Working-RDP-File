@@ -22,9 +22,15 @@ jobs:
         Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
         Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
         Set-LocalUser -Name "runneradmin" -Password (ConvertTo-SecureString -AsPlainText "P@ssw0rd!" -Force)
-    - name: Create and keep ngrok tunnel running
+    - name: Start ngrok tunnel
+      run: .\ngrok\ngrok.exe tcp 3389 &
+    - name: Monitor ngrok tunnel
       run: |
         while ($true) {
-          .\ngrok\ngrok.exe tcp 3389
+          $ngrokProcess = Get-Process -Name ngrok -ErrorAction SilentlyContinue
+          if ($ngrokProcess -eq $null) {
+            Start-Process .\ngrok\ngrok.exe -ArgumentList "tcp 3389" -NoNewWindow
+          }
           Start-Sleep -Seconds 10
         }
+      continue-on-error: true
